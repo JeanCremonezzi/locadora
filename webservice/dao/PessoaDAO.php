@@ -1,6 +1,7 @@
 <?php
     require_once(dirname(__DIR__)."/entities/Pessoa.php");
     require_once(dirname(__DIR__)."/database/configuration/connection.php");
+    require_once("CarroDAO.php");
 
     class PessoaDAO {
         private static $conn;
@@ -23,11 +24,15 @@
                     ':senha' => $pessoa->getSenha()
                 ]);
 
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Pessoa inserida com sucesso";
+                    $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
                 } else {
-                    return false;
+                    $response["msg"] = "Pessoa não inserida";
                 }
+
+                return $response;
 
             } catch (Exception $e) {
                 echo $e->getMessage();
@@ -48,11 +53,15 @@
                 
                 $result = $stmt->fetchAll();
 
+                $response = [];
                 if (count($result) == 0) {
-                    return [];
+                    $response["msg"] = "Pessoa não encontrada";
                 } else {
-                    return $result[0];
+                    $response["msg"] = "Pessoa encontrada";
+                    $response["data"] = $result[0];
                 }
+
+                return $response;
 
             } catch (Exception $e) {
                 echo $e->getMessage();
@@ -69,7 +78,11 @@
                 $stmt = self::$conn->prepare("SELECT * FROM pessoa");
                 $stmt->execute();
 
-                return $stmt->fetchAll();
+                $response = [
+                    "data" => $stmt->fetchAll()
+                ];
+        
+                return $response;
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
@@ -90,12 +103,16 @@
                     ':login' => $pessoa->getLogin(),
                     ':senha' => $pessoa->getSenha()
                 ]);
-
+                
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Pessoa atualizada com sucesso";
+                    $response["data"] = self::findOne($pessoa->getId())["data"];
                 } else {
-                    return false;
+                    $response["msg"] = "Pessoa não atualizada ou não encontrada";
                 }
+
+                return $response;
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
@@ -114,12 +131,15 @@
                 $stmt->execute([
                     ':id' => $id
                 ]);
-
+                
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Pessoa deletada com sucesso";
                 } else {
-                    return false;
+                    $response["msg"] = "Pessoa não deletada ou não encontrada";
                 }
+
+                return $response;
                 
             } catch (Exception $e) {
                 echo $e->getMessage();

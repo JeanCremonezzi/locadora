@@ -24,11 +24,15 @@
                     ':pessoa' => $carro->getIdPessoa()
                 ]);
 
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Carro inserido com sucesso";
+                    $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
                 } else {
-                    return false;
+                    $response["msg"] = "Carro não inserido";
                 }
+
+                return $response;
 
             } catch (Exception $e) {
                 echo $e->getMessage();
@@ -49,11 +53,15 @@
                 
                 $result = $stmt->fetchAll();
 
+                $response = [];
                 if (count($result) == 0) {
-                    return [];
+                    $response["msg"] = "Carro não encontrado";
                 } else {
-                    return $result[0];
+                    $response["msg"] = "Carro encontrado";
+                    $response["data"] = $result[0];
                 }
+
+                return $response;
 
             } catch (Exception $e) {
                 echo $e->getMessage();
@@ -70,7 +78,11 @@
                 $stmt = self::$conn->prepare("SELECT * FROM carro");
                 $stmt->execute();
 
-                return $stmt->fetchAll();
+                $response = [
+                    "data" => $stmt->fetchAll()
+                ];
+        
+                return $response;
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
@@ -93,11 +105,15 @@
                     ':pessoa' => $carro->getIdPessoa()
                 ]);
 
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Carro atualizado com sucesso";
+                    $response["data"] = self::findOne($carro->getId())["data"];
                 } else {
-                    return false;
+                    $response["msg"] = "Carro não atualizado ou não encontrado";
                 }
+
+                return $response;
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
@@ -115,12 +131,14 @@
                     ':id' => $id
                 ]);
 
+                $response = [];
                 if ($stmt->rowCount() > 0) {
-                    return true;
+                    $response["msg"] = "Carro deletado com sucesso";
                 } else {
-                    return false;
+                    $response["msg"] = "Carro não deletado ou não encontrado";
                 }
-                
+
+                return $response;
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
