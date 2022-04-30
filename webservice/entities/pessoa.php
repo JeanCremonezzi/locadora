@@ -1,35 +1,43 @@
 <?php
-    require_once("carro.php");
+    require_once("Carro.php");
 
     class Pessoa {
         private $id;
         private $nome;
         private $login;
         private $senha;
-        private $carros;
 
         public function __construct() {
             $this->id = null;
             $this->nome = null;
             $this->login = null;
             $this->senha = null;
-            $this->carros = [];
         }
 
-        public static function create($nome, $login, $senha, $carros = []) {
+        public static function create($nome, $login, $senha) {
             $instance = new self();
 
             $instance->nome = $nome;
             $instance->login = $login;
             $instance->senha = $senha;
-            $instance->carros = $carros;
 
             return $instance;
         }
 
-        public static function createWithId($id, $nome, $login, $senha, $carros = []) {
-            $instance = self::create($nome, $login, $senha, $carros);
+        public static function createWithId($id, $nome, $login, $senha) {
+            $instance = self::create($nome, $login, $senha);
             $instance->id = $id;
+
+            return $instance;
+        }
+
+        public static function createByArray($array) {
+            $instance = self::createWithId(
+                $array['id'],
+                $array['nome'],
+                $array['login'],
+                $array['senha'],
+            );
 
             return $instance;
         }
@@ -41,16 +49,6 @@
                 "login" => $this->login,
                 "senha" => $this->senha
             ]);
-        }
-
-        public function addCarro(Carro $carro) {
-            $this->carros[$carro->getId()] = $carro;
-            $carro->setIdPessoa($this->id);
-        }
-
-        public function removeCarro($id) {
-            $this->carros[$id]->setIdPessoa(null);
-            unset($this->carros[$id]);
         }
 
         public function getId() {

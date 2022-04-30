@@ -15,13 +15,7 @@ CREATE TABLE carro (
 	nome VARCHAR(255),
 	marca VARCHAR(255),
 	ano YEAR,
-CONSTRAINT carro_pk PRIMARY KEY(id)
-);
-
-CREATE TABLE carro_pessoa (
 	pessoa INT,
-	carro INT,
-CONSTRAINT pessoa_fk FOREIGN KEY (pessoa) REFERENCES pessoa(id),
-CONSTRAINT carro_fk FOREIGN KEY (carro) REFERENCES carro(id),
-CONSTRAINT carro_pessoa_pk PRIMARY KEY(pessoa, carro)
+CONSTRAINT carro_pk PRIMARY KEY(id),
+CONSTRAINT pessoa_fk FOREIGN KEY (pessoa) REFERENCES pessoa(id)
 );
