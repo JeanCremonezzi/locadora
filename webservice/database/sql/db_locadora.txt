@@ -1,0 +1,27 @@
+CREATE DATABASE locadora;
+
+USE locadora;
+
+CREATE TABLE pessoa (
+	id INT AUTO_INCREMENT,
+	nome VARCHAR(255),
+	login VARCHAR(255),
+	senha VARCHAR(255),
+CONSTRAINT pessoa_pk PRIMARY KEY(id)
+);
+
+CREATE TABLE carro (
+	id INT AUTO_INCREMENT,
+	nome VARCHAR(255),
+	marca VARCHAR(255),
+	ano YEAR,
+CONSTRAINT carro_pk PRIMARY KEY(id)
+);
+
+CREATE TABLE carro_pessoa (
+	pessoa INT,
+	carro INT,
+CONSTRAINT pessoa_fk FOREIGN KEY (pessoa) REFERENCES pessoa(id),
+CONSTRAINT carro_fk FOREIGN KEY (carro) REFERENCES carro(id),
+CONSTRAINT carro_pessoa_pk PRIMARY KEY(pessoa, carro)
+);
