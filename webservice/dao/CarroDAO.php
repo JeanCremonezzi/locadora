@@ -17,10 +17,11 @@
                 }
 
                 if (!PessoaDAO::idExists($carro->getIdPessoa())) {
+                    $response["status"] = 404;
                     $response["msg"] = "Pessoa não existe";
 
                 } else {
-                    $stmt = self::$conn->prepare("INSERT INTO carro(nome, marca, ano, pessoa) VALUES (:nome , :marca, :ano, :pessoa)");
+                    $stmt = self::$conn->prepare("INSERT INTO carro(nome, marca, ano, idPessoa) VALUES (:nome , :marca, :ano, :pessoa)");
 
                     $stmt->execute([
                         ':nome' => $carro->getNome(),
@@ -30,9 +31,11 @@
                     ]);
 
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 201;
                         $response["msg"] = "Carro inserido com sucesso";
                         $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Carro não inserido";
                     }
                 }
@@ -59,8 +62,10 @@
                 $result = $stmt->fetchAll();
 
                 if (count($result) == 0) {
+                    $response["status"] = 404;
                     $response["msg"] = "Carro não encontrado";
                 } else {
+                    $response["status"] = 200;
                     $response["msg"] = "Carro encontrado";
                     $response["data"] = $result[0];
                 }
@@ -82,9 +87,16 @@
                 $stmt = self::$conn->prepare("SELECT * FROM carro");
                 $stmt->execute();
 
-                $response = [
-                    "data" => $stmt->fetchAll()
-                ];
+                $result = $stmt->fetchAll();
+
+                if (count($result)) {
+                    $response["status"] = 200;
+                    $response["msg"] = "Carros encontrados";
+                    $response["data"] = $result;
+                } else {
+                    $response["status"] = 404;
+                    $response["msg"] = "Nenhum carro encontrado";
+                }
         
                 return $response;
             } catch (Exception $e) {
@@ -100,13 +112,15 @@
                 }
 
                 if (!self::idExists($carro->getId())) {
+                    $response["status"] = 404;
                     $response["msg"] = "Carro não existe";
 
                 } else if (!PessoaDAO::idExists($carro->getIdPessoa())) {
+                    $response["status"] = 404;
                     $response["msg"] = "Pessoa não existe";
 
                 } else {
-                    $stmt = self::$conn->prepare("UPDATE carro SET nome = :nome, marca = :marca, ano = :ano, pessoa = :pessoa WHERE id = :id");
+                    $stmt = self::$conn->prepare("UPDATE carro SET nome = :nome, marca = :marca, ano = :ano, idPessoa = :pessoa WHERE id = :id");
 
                     $stmt->execute([
                         ':id' => $carro->getId(),
@@ -117,9 +131,11 @@
                     ]);
 
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 200;
                         $response["msg"] = "Carro atualizado com sucesso";
                         $response["data"] = self::findOne($carro->getId())["data"];
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Carro não atualizado";
                     }
                 }
@@ -138,6 +154,7 @@
                 }
 
                 if (!self::idExists($id)) {
+                    $response["status"] = 404;
                     $response["msg"] = "Carro não existe";
 
                 } else {
@@ -147,8 +164,11 @@
                     ]);
 
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 200;
                         $response["msg"] = "Carro deletado com sucesso";
+                        
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Carro não deletado ou não encontrado";
                     }
                 }
@@ -166,7 +186,7 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("SELECT COUNT(*) FROM carro WHERE pessoa = :idPessoa");
+                $stmt = self::$conn->prepare("SELECT COUNT(*) FROM carro WHERE idPessoa = :idPessoa");
                 $stmt->execute([
                     ':idPessoa' => $idPessoa
                 ]);

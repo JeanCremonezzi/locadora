@@ -5,7 +5,7 @@ USE locadora;
 CREATE TABLE pessoa (
 	id INT AUTO_INCREMENT,
 	nome VARCHAR(255),
-	login VARCHAR(255),
+	login VARCHAR(255) UNIQUE,
 	senha VARCHAR(255),
 CONSTRAINT pessoa_pk PRIMARY KEY(id)
 );
@@ -15,7 +15,7 @@ CREATE TABLE carro (
 	nome VARCHAR(255),
 	marca VARCHAR(255),
 	ano YEAR,
-	pessoa INT,
+	idPessoa INT,
 CONSTRAINT carro_pk PRIMARY KEY(id),
-CONSTRAINT pessoa_fk FOREIGN KEY (pessoa) REFERENCES pessoa(id)
+CONSTRAINT pessoa_fk FOREIGN KEY (idPessoa) REFERENCES pessoa(id)
 );

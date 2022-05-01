@@ -17,6 +17,7 @@
                 }
 
                 if (self::loginExists($pessoa->getLogin())) {
+                    $response["status"] = 409;
                     $response["msg"] = "Login já existe";
 
                 } else {
@@ -29,9 +30,11 @@
                     ]);
 
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 201;
                         $response["msg"] = "Pessoa inserida com sucesso";
                         $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Pessoa não inserida";
                     }
     
@@ -59,8 +62,10 @@
                 $result = $stmt->fetchAll();
 
                 if (count($result) == 0) {
+                    $response["status"] = 404;
                     $response["msg"] = "Pessoa não encontrada";
                 } else {
+                    $response["status"] = 200;
                     $response["msg"] = "Pessoa encontrada";
                     $response["data"] = $result[0];
                 }
@@ -82,9 +87,16 @@
                 $stmt = self::$conn->prepare("SELECT * FROM pessoa");
                 $stmt->execute();
 
-                $response = [
-                    "data" => $stmt->fetchAll()
-                ];
+                $result = $stmt->fetchAll();
+
+                if (count($result)) {
+                    $response["status"] = 200;
+                    $response["msg"] = "Pessoas encontradas";
+                    $response["data"] = $result;
+                } else {
+                    $response["status"] = 404;
+                    $response["msg"] = "Nenhuma pessoa encontrada";
+                }
         
                 return $response;
             } catch (Exception $e) {
@@ -100,9 +112,11 @@
                 }
 
                 if (!self::idExists($pessoa->getId())) {
+                    $response["status"] = 404;
                     $response["msg"] = "Pessoa não encontrada";
                     
                 } else if (self::loginExists($pessoa->getLogin(), $pessoa->getId())) {
+                    $response["status"] = 409;
                     $response["msg"] = "Login já existe";
 
                 } else {
@@ -116,10 +130,12 @@
                     ]);
                     
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 200;
                         $response["msg"] = "Pessoa atualizada com sucesso";
                         $response["data"] = self::findOne($pessoa->getId())["data"];
 
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Pessoa não atualizada";
                     }
                 }
@@ -138,9 +154,11 @@
                 }
 
                 if (!self::idExists($id)) {
+                    $response["status"] = 404;
                     $response["msg"] = "Pessoa não encontrada";
 
                 } else if (CarroDAO::haveCarros($id)) {
+                    $response["status"] = 409;
                     $response["msg"] = "Não é possível deletar pessoa que possua carros";
 
                 } else {
@@ -150,8 +168,11 @@
                     ]);
                     
                     if ($stmt->rowCount() > 0) {
+                        $response["status"] = 200;
                         $response["msg"] = "Pessoa deletada com sucesso";
+                        
                     } else {
+                        $response["status"] = 400;
                         $response["msg"] = "Pessoa não deletada ou não encontrada";
                     }
                 }
