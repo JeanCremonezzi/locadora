@@ -1,0 +1,10 @@
+Order deny,allow
+Deny from all
+
+<Files "CarrosRoute.php">
+    Allow from all
+</Files>
+
+<Files "PessoasRoute.php">
+    Allow from all
+</Files>
