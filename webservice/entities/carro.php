@@ -32,10 +32,6 @@
             return $instance;
         }
 
-        public function encode() {
-            return json_encode(get_object_vars($this));
-        }
-
         public function getId() {
             return $this->id;
         }

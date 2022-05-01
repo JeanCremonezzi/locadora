@@ -42,15 +42,6 @@
             return $instance;
         }
 
-        public function encode() {
-            return json_encode([
-                "id" => $this->id,
-                "nome" => $this->nome,
-                "login" => $this->login,
-                "senha" => $this->senha
-            ]);
-        }
-
         public function getId() {
             return $this->id;
         }

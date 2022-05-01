@@ -1,6 +1,7 @@
 <?php
     require_once(dirname(__DIR__)."/entities/Carro.php");
     require_once(dirname(__DIR__)."/database/configuration/connection.php");
+    require_once("PessoaDAO.php");
 
     class CarroDAO {
         private static $conn;
@@ -15,21 +16,25 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("INSERT INTO carro(nome, marca, ano, pessoa) VALUES (:nome , :marca, :ano, :pessoa)");
+                if (!PessoaDAO::idExists($carro->getIdPessoa())) {
+                    $response["msg"] = "Pessoa não existe";
 
-                $stmt->execute([
-                    ':nome' => $carro->getNome(),
-                    ':marca' => $carro->getMarca(),
-                    ':ano' => $carro->getAno(),
-                    ':pessoa' => $carro->getIdPessoa()
-                ]);
-
-                $response = [];
-                if ($stmt->rowCount() > 0) {
-                    $response["msg"] = "Carro inserido com sucesso";
-                    $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
                 } else {
-                    $response["msg"] = "Carro não inserido";
+                    $stmt = self::$conn->prepare("INSERT INTO carro(nome, marca, ano, pessoa) VALUES (:nome , :marca, :ano, :pessoa)");
+
+                    $stmt->execute([
+                        ':nome' => $carro->getNome(),
+                        ':marca' => $carro->getMarca(),
+                        ':ano' => $carro->getAno(),
+                        ':pessoa' => $carro->getIdPessoa()
+                    ]);
+
+                    if ($stmt->rowCount() > 0) {
+                        $response["msg"] = "Carro inserido com sucesso";
+                        $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
+                    } else {
+                        $response["msg"] = "Carro não inserido";
+                    }
                 }
 
                 return $response;
@@ -53,7 +58,6 @@
                 
                 $result = $stmt->fetchAll();
 
-                $response = [];
                 if (count($result) == 0) {
                     $response["msg"] = "Carro não encontrado";
                 } else {
@@ -95,22 +99,29 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("UPDATE carro SET nome = :nome, marca = :marca, ano = :ano, pessoa = :pessoa WHERE id = :id");
+                if (!self::idExists($carro->getId())) {
+                    $response["msg"] = "Carro não existe";
 
-                $stmt->execute([
-                    ':id' => $carro->getId(),
-                    ':nome' => $carro->getNome(),
-                    ':marca' => $carro->getMarca(),
-                    ':ano' => $carro->getAno(),
-                    ':pessoa' => $carro->getIdPessoa()
-                ]);
+                } else if (!PessoaDAO::idExists($carro->getIdPessoa())) {
+                    $response["msg"] = "Pessoa não existe";
 
-                $response = [];
-                if ($stmt->rowCount() > 0) {
-                    $response["msg"] = "Carro atualizado com sucesso";
-                    $response["data"] = self::findOne($carro->getId())["data"];
                 } else {
-                    $response["msg"] = "Carro não atualizado ou não encontrado";
+                    $stmt = self::$conn->prepare("UPDATE carro SET nome = :nome, marca = :marca, ano = :ano, pessoa = :pessoa WHERE id = :id");
+
+                    $stmt->execute([
+                        ':id' => $carro->getId(),
+                        ':nome' => $carro->getNome(),
+                        ':marca' => $carro->getMarca(),
+                        ':ano' => $carro->getAno(),
+                        ':pessoa' => $carro->getIdPessoa()
+                    ]);
+
+                    if ($stmt->rowCount() > 0) {
+                        $response["msg"] = "Carro atualizado com sucesso";
+                        $response["data"] = self::findOne($carro->getId())["data"];
+                    } else {
+                        $response["msg"] = "Carro não atualizado";
+                    }
                 }
 
                 return $response;
@@ -126,16 +137,20 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("DELETE FROM carro WHERE id = :id");
-                $stmt->execute([
-                    ':id' => $id
-                ]);
+                if (!self::idExists($id)) {
+                    $response["msg"] = "Carro não existe";
 
-                $response = [];
-                if ($stmt->rowCount() > 0) {
-                    $response["msg"] = "Carro deletado com sucesso";
                 } else {
-                    $response["msg"] = "Carro não deletado ou não encontrado";
+                    $stmt = self::$conn->prepare("DELETE FROM carro WHERE id = :id");
+                    $stmt->execute([
+                        ':id' => $id
+                    ]);
+
+                    if ($stmt->rowCount() > 0) {
+                        $response["msg"] = "Carro deletado com sucesso";
+                    } else {
+                        $response["msg"] = "Carro não deletado ou não encontrado";
+                    }
                 }
 
                 return $response;
@@ -145,23 +160,46 @@
             }
         }
 
-        public static function updateSetPessoaNull($idPessoa) {
+        public static function haveCarros($idPessoa) {
             try {
                 if (!isset(self::$conn)) {
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("UPDATE carro SET pessoa = NULL WHERE pessoa = :id");
+                $stmt = self::$conn->prepare("SELECT COUNT(*) FROM carro WHERE pessoa = :idPessoa");
                 $stmt->execute([
-                    ':id' => $idPessoa
+                    ':idPessoa' => $idPessoa
                 ]);
 
-                if ($stmt->rowCount() > 0) {
+                if ($stmt->fetchColumn()) {
                     return true;
-                } else {
-                    return false;
                 }
+
+                return false;
                 
+            } catch (Exception $e) {
+                echo $e->getMessage();
+                exit;
+            }
+        }
+
+        public static function idExists($id) {
+            try {
+                if (!isset(self::$conn)) {
+                    new CarroDAO();
+                }
+
+                $stmt = self::$conn->prepare("SELECT COUNT(*) FROM carro WHERE id = :id");
+                $stmt->execute([
+                    ':id' => $id
+                ]);
+
+                if ($stmt->fetchColumn()) {
+                    return true;
+                }
+
+                return false;
+
             } catch (Exception $e) {
                 echo $e->getMessage();
                 exit;
