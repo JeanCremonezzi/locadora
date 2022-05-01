@@ -34,6 +34,7 @@
                         $response["status"] = 201;
                         $response["msg"] = "Carro inserido com sucesso";
                         $response["data"] = self::findOne(self::$conn->lastInsertId())["data"];
+
                     } else {
                         $response["status"] = 400;
                         $response["msg"] = "Carro não inserido";
@@ -43,8 +44,10 @@
                 return $response;
 
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
         
@@ -64,6 +67,7 @@
                 if (count($result) == 0) {
                     $response["status"] = 404;
                     $response["msg"] = "Carro não encontrado";
+
                 } else {
                     $response["status"] = 200;
                     $response["msg"] = "Carro encontrado";
@@ -73,8 +77,10 @@
                 return $response;
 
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             } 
         }
         
@@ -93,6 +99,7 @@
                     $response["status"] = 200;
                     $response["msg"] = "Carros encontrados";
                     $response["data"] = $result;
+
                 } else {
                     $response["status"] = 404;
                     $response["msg"] = "Nenhum carro encontrado";
@@ -100,8 +107,10 @@
         
                 return $response;
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
         
@@ -134,6 +143,7 @@
                         $response["status"] = 200;
                         $response["msg"] = "Carro atualizado com sucesso";
                         $response["data"] = self::findOne($carro->getId())["data"];
+                        
                     } else {
                         $response["status"] = 400;
                         $response["msg"] = "Carro não atualizado";
@@ -142,8 +152,10 @@
 
                 return $response;
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
         
@@ -175,8 +187,10 @@
 
                 return $response;
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
 
@@ -198,8 +212,10 @@
                 return false;
                 
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
 
@@ -221,8 +237,10 @@
                 return false;
 
             } catch (Exception $e) {
-                echo $e->getMessage();
-                exit;
+                return $response = [
+                    "status" => 500,
+                    "msg" => "Internal Server Error"
+                ];
             }
         }
     }
