@@ -57,7 +57,11 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("SELECT * FROM carro WHERE id = :id");
+                $stmt = self::$conn->prepare("
+                    SELECT carro.*, pessoa.nome AS pessoa
+                    FROM carro, pessoa
+                    WHERE carro.id = :id AND carro.idPessoa = pessoa.id;
+                ");
                 $stmt->execute([
                     ':id' => $id
                 ]);
@@ -90,7 +94,11 @@
                     new CarroDAO();
                 }
 
-                $stmt = self::$conn->prepare("SELECT * FROM carro");
+                $stmt = self::$conn->prepare("
+                    SELECT carro.*, pessoa.nome AS pessoa 
+                    FROM carro, pessoa 
+                    WHERE carro.idPessoa = pessoa.id;
+                ");
                 $stmt->execute();
 
                 $result = $stmt->fetchAll();
