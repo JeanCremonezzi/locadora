@@ -1,10 +1,20 @@
 import { getPessoas } from "./api/pessoas.js";
 import { tablePessoas } from "./components/tablePessoas.js";
+import { alertBox } from "./components/alertBox.js";
+import { formAddPessoas } from "./components/formPessoas.js";
 
 $(() => {
     let pessoasAnchor = $("#pessoasAnchor");
     let carrosAnchor = $("#carrosAnchor");
     let mainContainer = $("#mainContainer");
+
+    $("#forms").append(formAddPessoas());
+    getPessoas().then(res => {
+        $(mainContainer).append(tablePessoas(res.data));
+    })
+    .catch((res) => {
+        $(mainContainer).append(alertBox(res.responseJSON.msg));
+    });
 
     $(pessoasAnchor).click((e) => {
         e.preventDefault();
@@ -17,11 +27,13 @@ $(() => {
 
         $(mainContainer).empty();
 
+        $("#forms").empty();
+        $("#forms").append(formAddPessoas());
         getPessoas().then(res => {
             $(mainContainer).append(tablePessoas(res.data));
         })
         .catch((res) => {
-            console.log(res.responseJSON);
+            $(mainContainer).append(alertBox(res.responseJSON.msg));
         });
     });
 
@@ -35,5 +47,11 @@ $(() => {
         $(carrosAnchor).attr("aria-current", "page");
 
         $(mainContainer).empty();
+        
+        $("#forms").empty();
     });
+
+    $("#alertModal").on('hidden.bs.modal', () => {
+        location.reload();
+    })
 });
